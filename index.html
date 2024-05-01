@@ -108,7 +108,6 @@
 </div>
 
 <script>
-    // Load saved webhook URL from local storage
     window.addEventListener('load', function () {
         var savedWebhookURL = localStorage.getItem('webhookURL');
         if (savedWebhookURL) {
@@ -116,33 +115,27 @@
         }
     });
 
-    // Save webhook URL to local storage
     function saveWebhookURL() {
         var webhookURL = document.getElementById('webhook-url').value;
         localStorage.setItem('webhookURL', webhookURL);
     }
 
-    // Event listener for form submission
     document.getElementById("webhook-form").addEventListener("submit", function (event) {
         event.preventDefault();
 
-        // Save webhook URL to local storage
         saveWebhookURL();
 
-        // Get form values
         var webhookURL = document.getElementById("webhook-url").value;
         var name = document.getElementById("name").value;
         var profilePicture = document.getElementById("profile-picture").value;
         var message = document.getElementById("message").value;
 
-        // Create payload for webhook
         var payload = {
             username: name,
             avatar_url: profilePicture,
             content: message,
         };
 
-        // Send message via webhook
         fetch(webhookURL, {
             method: "POST",
             headers: {

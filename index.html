@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discohook Webhook Sender</title>
+    <style>
+        body {
+            font-family: "Ubuntu", "Arial", sans-serif;
+            background-color: #dfdfdf;
+            color: #000000;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            border: 2px solid #6f6f6f;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2e3436;
+            text-transform: uppercase;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #2e3436;
+        }
+
+        input,
+        textarea {
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #2e3436;
+            background-color: #ffffff;
+            color: #2e3436;
+            border-radius: 4px;
+            font-family: "Arial", sans-serif;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4f4f4f;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: "Arial", sans-serif;
+        }
+
+        button:hover {
+            background-color: #6f6f6f;
+        }
+
+        .message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-family: "Arial", sans-serif;
+        }
+
+        .success {
+            background-color: #2ecc71;
+            color: #ffffff;
+            border: 1px solid #27ae60;
+        }
+
+        .error {
+            background-color: #e74c3c;
+            color: #ffffff;
+            border: 1px solid #c0392b;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Discohook Webhook Sender</h1>
+
+    <form id="webhook-form">
+        <label for="webhook-url">Webhook URL:</label>
+        <input type="text" id="webhook-url" name="webhook-url" required>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" placeholder="Enter your name">
+        <label for="profile-picture">Profile Picture URL (Optional):</label>
+        <input type="text" id="profile-picture" name="profile-picture" placeholder="Enter URL of your profile picture">
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="4" cols="50" required></textarea>
+        <button type="submit">Send Message</button>
+        <div id="message-area" class="message"></div>
+    </form>
+</div>
+
+<script>
+    // Load saved webhook URL from local storage
+    window.addEventListener('load', function () {
+        var savedWebhookURL = localStorage.getItem('webhookURL');
+        if (savedWebhookURL) {
+            document.getElementById('webhook-url').value = savedWebhookURL;
+        }
+    });
+
+    // Save webhook URL to local storage
+    function saveWebhookURL() {
+        var webhookURL = document.getElementById('webhook-url').value;
+        localStorage.setItem('webhookURL', webhookURL);
+    }
+
+    // Event listener for form submission
+    document.getElementById("webhook-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        // Save webhook URL to local storage
+        saveWebhookURL();
+
+        // Get form values
+        var webhookURL = document.getElementById("webhook-url").value;
+        var name = document.getElementById("name").value;
+        var profilePicture = document.getElementById("profile-picture").value;
+        var message = document.getElementById("message").value;
+
+        // Create payload for webhook
+        var payload = {
+            username: name,
+            avatar_url: profilePicture,
+            content: message,
+        };
+
+        // Send message via webhook
+        fetch(webhookURL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    showMessage("Message sent successfully!", "success");
+                } else {
+                    showMessage("Failed to send message. Please check the webhook URL.", "error");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                showMessage("An error occurred. Please try again later.", "error");
+            });
+    });
+
+    function showMessage(message, type) {
+        var messageArea = document.getElementById("message-area");
+        messageArea.innerText = message;
+        messageArea.classList.add(type);
+        setTimeout(function () {
+            messageArea.innerText = "";
+            messageArea.classList.remove(type);
+        }, 5000);
+    }
+</script>
+</body>
+</html>
